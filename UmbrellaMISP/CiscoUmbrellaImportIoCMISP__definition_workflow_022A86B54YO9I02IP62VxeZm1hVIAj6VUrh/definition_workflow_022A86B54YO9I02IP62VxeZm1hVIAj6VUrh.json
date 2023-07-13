@@ -1,0 +1,552 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh",
+    "name": "Cisco Umbrella - Import IoC MISP",
+    "title": "Cisco Umbrella - Import IoC MISP",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.integer",
+        "properties": {
+          "value": 0,
+          "scope": "local",
+          "name": "Domains Counter",
+          "type": "datatype.integer",
+          "is_required": false,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_022FWSG3LZBOY1KE06olUgR7wD7EBqLxmAI",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "description": "Import Domain IoC from misp.vosed.com",
+      "display_name": "Cisco Umbrella - Import IoC MISP",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "no_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_022A87MM3KWQW4yvZOq5R4tMv7d4B4HoyvU",
+        "name": "HTTP Request",
+        "title": "GET IoC Domains from MISP",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "allow_headers_redirect": false,
+          "content_type": "application/json",
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "custom_headers": [
+            {
+              "name": "Authorization",
+              "value": "$global.variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2.global.variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2$"
+            }
+          ],
+          "display_name": "GET IoC Domains from MISP",
+          "method": "GET",
+          "relative_url": "/attributes/text/download/domain/limit:500/last:35d",
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "override_workflow_target": true,
+            "target_id": "definition_target_022A8ONUB4PRK3DgMpnWG0FMhHBvN1j04Sx"
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_022ABB74U97LU25xGDCnuQqQM8nPdjvBOm8",
+        "name": "Split String",
+        "title": "Split String",
+        "type": "core.splitstring",
+        "base_type": "activity",
+        "properties": {
+          "boundaries": [
+            {
+              "boundary": "\\n"
+            }
+          ],
+          "continue_on_failure": false,
+          "display_name": "Split String",
+          "input_string": "$activity.definition_activity_022A87MM3KWQW4yvZOq5R4tMv7d4B4HoyvU.output.response_body$",
+          "skip_execution": false,
+          "use_regexp": true
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_022ABYDL1AUFM6iLvppfWjkuNRs9gUdaFR8",
+        "name": "For Each",
+        "title": "For Each",
+        "type": "logic.for_each",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "For Each",
+          "skip_execution": false,
+          "source_array": "$activity.definition_activity_022ABB74U97LU25xGDCnuQqQM8nPdjvBOm8.output.parts$"
+        },
+        "object_type": "definition_activity",
+        "actions": [
+          {
+            "unique_name": "definition_activity_022ACUFKX8WLX0Gd23YCdlLtmoL0a8m9ZYw",
+            "name": "Condition Block",
+            "title": "Is blank?",
+            "type": "logic.if_else",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Is blank?",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "blocks": [
+              {
+                "unique_name": "definition_activity_022ACUFL8ZUO60MsQL3cnIiKzpTGuMnx20i",
+                "name": "Condition Branch",
+                "title": "no blank",
+                "type": "logic.condition_block",
+                "base_type": "activity",
+                "properties": {
+                  "condition": {
+                    "left_operand": "$activity.definition_activity_022ABYDL1AUFM6iLvppfWjkuNRs9gUdaFR8.input.source_array[@]$",
+                    "operator": "ne",
+                    "right_operand": ""
+                  },
+                  "continue_on_failure": false,
+                  "display_name": "no blank",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_022AXPUG631SX76ofdsd8BruVjOO5Xgk9EW",
+                    "name": "Sleep",
+                    "title": "Sleep",
+                    "type": "core.sleep",
+                    "base_type": "activity",
+                    "properties": {
+                      "continue_on_failure": false,
+                      "display_name": "Sleep",
+                      "skip_execution": false,
+                      "sleep_interval": 5
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_022ACD83W76CB0LUEp3149eyZz2IYMpKcVM",
+                    "name": "Match Regex",
+                    "title": "Get IP and Domain",
+                    "type": "core.matchregex",
+                    "base_type": "activity",
+                    "properties": {
+                      "continue_on_failure": false,
+                      "display_name": "Get IP and Domain",
+                      "input_regex": "^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)",
+                      "input_string": "$activity.definition_activity_022ABYDL1AUFM6iLvppfWjkuNRs9gUdaFR8.input.source_array[@]$",
+                      "match_case": true,
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_022ACHI0TOV467cfiqPEwuMLOekU1gICCsS",
+                    "name": "JSONPath Query",
+                    "title": "Get Domain",
+                    "type": "corejava.jsonpathquery",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "continue_on_failure": false,
+                      "display_name": "Get Domain",
+                      "input_json": "$activity.definition_activity_022ACD83W76CB0LUEp3149eyZz2IYMpKcVM.output.match_groups$",
+                      "jsonpath_queries": [
+                        {
+                          "jsonpath_query": "$[0].Group1",
+                          "jsonpath_query_name": "domain",
+                          "jsonpath_query_type": "string",
+                          "zdate_type_format": "yyyy-MM-dd'T'HH:mm:ssZ"
+                        }
+                      ],
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_022ACMILUTJ0Z4wy80qdlrVvGuCsuu9U9Vo",
+                    "name": "Match Regex",
+                    "title": "Is IP Address?",
+                    "type": "core.matchregex",
+                    "base_type": "activity",
+                    "properties": {
+                      "continue_on_failure": false,
+                      "display_name": "Is IP Address?",
+                      "input_regex": "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$",
+                      "input_string": "$activity.definition_activity_022ACHI0TOV467cfiqPEwuMLOekU1gICCsS.output.jsonpath_queries.domain$",
+                      "match_case": true,
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_022ACOC5FT5GD6LmjvtHzCBL40Pvi7d4pqy",
+                    "name": "Condition Block",
+                    "title": "Is IP Address?",
+                    "type": "logic.if_else",
+                    "base_type": "activity",
+                    "properties": {
+                      "continue_on_failure": false,
+                      "display_name": "Is IP Address?",
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity",
+                    "blocks": [
+                      {
+                        "unique_name": "definition_activity_022ACOC5XXR8S0VKdYDAZkxRXrsjRgy55og",
+                        "name": "Condition Branch",
+                        "title": "No IP Address",
+                        "type": "logic.condition_block",
+                        "base_type": "activity",
+                        "properties": {
+                          "condition": {
+                            "left_operand": "$activity.definition_activity_022ACMILUTJ0Z4wy80qdlrVvGuCsuu9U9Vo.output.has_match$",
+                            "operator": "eq",
+                            "right_operand": false
+                          },
+                          "continue_on_failure": false,
+                          "display_name": "No IP Address",
+                          "skip_execution": false
+                        },
+                        "object_type": "definition_activity",
+                        "actions": [
+                          {
+                            "unique_name": "definition_activity_022ABYXHTYKP43ZMXLlVbQkKVMuk1dUQ4D6",
+                            "name": "HTTP Request",
+                            "title": "POST Domain to Umbrella Enforcement",
+                            "type": "web-service.http_request",
+                            "base_type": "activity",
+                            "properties": {
+                              "accept": "application/json",
+                              "action_timeout": 180,
+                              "allow_auto_redirect": true,
+                              "allow_headers_redirect": false,
+                              "body": "{\n    \"alertTime\": \"2013-02-08T11:14:26.0Z\",\n    \"deviceId\": \"ba6a59f4-e692-4724-ba36-c28132c761de\",\n    \"deviceVersion\": \"13.7a\",\n    \"dstUrl\": \"$activity.definition_activity_022ABYDL1AUFM6iLvppfWjkuNRs9gUdaFR8.input.source_array[@]$\",\n    \"dstDomain\": \"$activity.definition_activity_022ACHI0TOV467cfiqPEwuMLOekU1gICCsS.output.jsonpath_queries.domain$\",\n    \"eventTime\": \"2013-02-08T09:30:26.0Z\",\n    \"protocolVersion\": \"1.0a\",\n    \"providerName\": \"Security Platform\"\n}",
+                              "content_type": "application/json",
+                              "continue_on_error_status_code": false,
+                              "continue_on_failure": true,
+                              "display_name": "POST Domain to Umbrella Enforcement",
+                              "method": "POST",
+                              "relative_url": "/1.0/events?customerKey=$global.variable_022AC2EKPXLQ67TeA2iwT0IyABizrKoWPQK.global.variable_022AC2EKPXLQ67TeA2iwT0IyABizrKoWPQK$",
+                              "runtime_user": {
+                                "target_default": true
+                              },
+                              "skip_execution": false,
+                              "target": {
+                                "override_workflow_target": true,
+                                "target_id": "definition_target_022ABM2O939OU2gY9VsfFJR3qEi15CGZy7v"
+                              }
+                            },
+                            "object_type": "definition_activity"
+                          },
+                          {
+                            "unique_name": "definition_activity_022CME2YB560W02VHGyR7GTfDTgelRjBMKV",
+                            "name": "Set Variables",
+                            "title": "Domains Counter",
+                            "type": "core.set_multiple_variables",
+                            "base_type": "activity",
+                            "properties": {
+                              "continue_on_failure": false,
+                              "display_name": "Domains Counter",
+                              "skip_execution": false,
+                              "variables_to_update": [
+                                {
+                                  "variable_to_update": "$workflow.definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh.local.variable_workflow_022FWSG3LZBOY1KE06olUgR7wD7EBqLxmAI$",
+                                  "variable_value_new": "$workflow.definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh.local.variable_workflow_022FWSG3LZBOY1KE06olUgR7wD7EBqLxmAI$ + 1"
+                                }
+                              ]
+                            },
+                            "object_type": "definition_activity"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "unique_name": "definition_activity_022K8EIZAOFXN0M2E44f6tlWLz4CwBfHEkH",
+        "name": "Condition Block",
+        "title": "Domains Imported?",
+        "type": "logic.if_else",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "Domains Imported?",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_022K8EIZX5TIJ1saJVxv22r1bZIhx07OIDN",
+            "name": "Condition Branch",
+            "title": "Domain Imported",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$workflow.definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh.local.variable_workflow_022FWSG3LZBOY1KE06olUgR7wD7EBqLxmAI$",
+                "operator": "gt",
+                "right_operand": 0
+              },
+              "continue_on_failure": false,
+              "display_name": "Domain Imported",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_022CMCCH5H4PR1cLUwck1kk3aUsC0rRw0gy",
+                "name": "Webex - Send Message to User",
+                "title": "Webex - Send Message to User",
+                "type": "workflow.atomic_workflow",
+                "base_type": "subworkflow",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Webex - Send Message to User",
+                  "input": {
+                    "variable_workflow_01PP77FMYQNAT1f0Boc3Jsu8zZuOJc7OaZs": "luis.vera@voseda.com",
+                    "variable_workflow_01PP77FMYQOKB6sht7fo6ocrtxThxDnzqIj": "",
+                    "variable_workflow_01PP77FMYQPR36iRvL3LB8HijkENSJBlq5v": "",
+                    "variable_workflow_01PP77FMYQQX64KQBAlf3SoPQsmb3b6YMD4": "Importación de indicadores de compromiso de tipo Dominio desde misp.voseda.com se completo exitosamente, dominios importados: $workflow.definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh.local.variable_workflow_022FWSG3LZBOY1KE06olUgR7wD7EBqLxmAI$",
+                    "variable_workflow_01PP77FMYQS346717GaMvyINtP5frU9HCPI": "$global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI.global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI$"
+                  },
+                  "runtime_user": {
+                    "target_default": true
+                  },
+                  "skip_execution": false,
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC",
+                    "target_type": "web-service.endpoint"
+                  },
+                  "workflow_id": "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1",
+                  "workflow_name": "Webex - Send Message to User"
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_022K8EJ0A6BZQ4qSlXYbV733C4OSoHQfi9g",
+            "name": "Condition Branch",
+            "title": "No Domains Imported",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$workflow.definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh.local.variable_workflow_022FWSG3LZBOY1KE06olUgR7wD7EBqLxmAI$",
+                "operator": "eq",
+                "right_operand": 0
+              },
+              "continue_on_failure": false,
+              "display_name": "No Domains Imported",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_022K8FEFHEKNC5p3wNn8s5agAFpz470YSVW",
+                "name": "Webex - Send Message to User",
+                "title": "Webex - Send Message to User",
+                "type": "workflow.atomic_workflow",
+                "base_type": "subworkflow",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Webex - Send Message to User",
+                  "input": {
+                    "variable_workflow_01PP77FMYQNAT1f0Boc3Jsu8zZuOJc7OaZs": "luis.vera@voseda.com",
+                    "variable_workflow_01PP77FMYQOKB6sht7fo6ocrtxThxDnzqIj": "",
+                    "variable_workflow_01PP77FMYQPR36iRvL3LB8HijkENSJBlq5v": "",
+                    "variable_workflow_01PP77FMYQQX64KQBAlf3SoPQsmb3b6YMD4": "No se encontraron indicadores de compromiso de tipo hash en misp.voseda.com para importar en Cisco Umbrella",
+                    "variable_workflow_01PP77FMYQS346717GaMvyINtP5frU9HCPI": "$global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI.global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI$"
+                  },
+                  "runtime_user": {
+                    "target_default": true
+                  },
+                  "skip_execution": false,
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC",
+                    "target_type": "web-service.endpoint"
+                  },
+                  "workflow_id": "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1",
+                  "workflow_name": "Webex - Send Message to User"
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "triggers": {
+    "triggerschedule_022KYWO4SO8R56ymMHH9tE8mB6wlgjnsZud": {
+      "workflow_id": "definition_workflow_022A86B54YO9I02IP62VxeZm1hVIAj6VUrh",
+      "name": "Every Day at 1 PM",
+      "title": "",
+      "lowercase_name": "schedule.every_day_at_1_pm",
+      "type": "schedule",
+      "base_type": "trigger",
+      "ref_id": "schedule_022CMHBDL5RGZ32ur9dyrfpAlybMXgPgqET",
+      "version": "1.0.0",
+      "disabled": false,
+      "unique_name": "triggerschedule_022KYWO4SO8R56ymMHH9tE8mB6wlgjnsZud",
+      "object_type": "triggerschedule"
+    }
+  },
+  "schedules": {
+    "schedule_022CMHBDL5RGZ32ur9dyrfpAlybMXgPgqET": {
+      "unique_name": "schedule_022CMHBDL5RGZ32ur9dyrfpAlybMXgPgqET",
+      "name": "Every Day at 1 PM",
+      "type": "basic.schedule",
+      "base_type": "schedule",
+      "object_type": "schedule",
+      "rule_id": "",
+      "properties": {
+        "calendar": "calendar_recurring_1BMfMWvgiDhSjBQ7hTSyvz3NyVZ",
+        "timezone": "America/Mexico_City",
+        "starttime": "13:00",
+        "interval_hours": 0,
+        "interval_minutes": 0,
+        "number_of_times": 1,
+        "display_name": "Every Day at 1 PM",
+        "description": ""
+      },
+      "version": "1.0.0"
+    }
+  },
+  "targets": {
+    "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC": {
+      "unique_name": "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC",
+      "name": "Webex Teams",
+      "title": "Webex Teams",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "description": "Webex Teams",
+        "disable_certificate_validation": false,
+        "display_name": "Webex Teams",
+        "host": "webexapis.com",
+        "no_runtime_user": true,
+        "port": 443,
+        "protocol": "https"
+      }
+    },
+    "definition_target_022A8ONUB4PRK3DgMpnWG0FMhHBvN1j04Sx": {
+      "unique_name": "definition_target_022A8ONUB4PRK3DgMpnWG0FMhHBvN1j04Sx",
+      "name": "MISP VOSEDA",
+      "title": "MISP VOSEDA",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": true,
+        "display_name": "MISP VOSEDA",
+        "host": "misp.voseda.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "port": 8080,
+        "protocol": "https"
+      }
+    },
+    "definition_target_022ABM2O939OU2gY9VsfFJR3qEi15CGZy7v": {
+      "unique_name": "definition_target_022ABM2O939OU2gY9VsfFJR3qEi15CGZy7v",
+      "name": "Umbrella Enforcement API",
+      "title": "Umbrella Enforcement API",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": false,
+        "display_name": "Umbrella Enforcement API",
+        "host": "s-platform.api.opendns.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "port": 443,
+        "protocol": "https"
+      }
+    }
+  },
+  "variables": {
+    "variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2": {
+      "unique_name": "variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2",
+      "properties": {
+        "value": "RXbTKmgE8DtsEQbMuoXtFJD77wzNtwSsQptmbXDn",
+        "scope": "global",
+        "name": "MISP Voseda",
+        "type": "datatype.string",
+        "is_required": false,
+        "display_on_wizard": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_022AC2EKPXLQ67TeA2iwT0IyABizrKoWPQK": {
+      "unique_name": "variable_022AC2EKPXLQ67TeA2iwT0IyABizrKoWPQK",
+      "properties": {
+        "value": "7ac9c839-774f-4165-b7fb-01c787a142a2",
+        "scope": "global",
+        "name": "Umbrella Enforcement API Customer Key",
+        "type": "datatype.string",
+        "is_required": false,
+        "display_on_wizard": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI": {
+      "unique_name": "variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI",
+      "properties": {
+        "value": "*****",
+        "scope": "global",
+        "name": "NotiBot Voseda Token",
+        "type": "datatype.secure_string",
+        "is_required": false,
+        "display_on_wizard": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    }
+  },
+  "atomic_workflows": [
+    "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1"
+  ],
+  "dependent_workflows": [
+    "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1"
+  ]
+}
