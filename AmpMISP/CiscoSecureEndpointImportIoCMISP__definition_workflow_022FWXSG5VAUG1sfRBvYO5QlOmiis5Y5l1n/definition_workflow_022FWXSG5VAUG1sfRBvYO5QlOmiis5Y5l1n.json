@@ -1,0 +1,493 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n",
+    "name": "Cisco Secure Endpoint - Import IoC MISP",
+    "title": "Cisco Secure Endpoint - Import IoC MISP",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.integer",
+        "properties": {
+          "value": 0,
+          "scope": "local",
+          "name": "HASH Counter",
+          "type": "datatype.integer",
+          "is_required": false,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_022FWXSGW69DO23y5hwKzUmYFrC3YDfSFiw",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "description": "Import SHA256 IoC from misp.voseda.com",
+      "display_name": "Cisco Secure Endpoint - Import IoC MISP",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "no_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_022FWXSJBGMJE11jo7MwvbxzpLtF0Ri2pBY",
+        "name": "HTTP Request",
+        "title": "GET IoC SHA256 Hash Files from MISP",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "allow_headers_redirect": false,
+          "content_type": "application/json",
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "custom_headers": [
+            {
+              "name": "Authorization",
+              "value": "$global.variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2.global.variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2$"
+            }
+          ],
+          "display_name": "GET IoC SHA256 Hash Files from MISP",
+          "method": "GET",
+          "relative_url": "/attributes/text/download/sha256/limit:500/last:1d",
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "override_workflow_target": true,
+            "target_id": "definition_target_022A8ONUB4PRK3DgMpnWG0FMhHBvN1j04Sx"
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_022FWXSKVR9L55eTLkSUVdv43wZSxWmRv3G",
+        "name": "Split String",
+        "title": "Split String",
+        "type": "core.splitstring",
+        "base_type": "activity",
+        "properties": {
+          "boundaries": [
+            {
+              "boundary": "\\n"
+            }
+          ],
+          "continue_on_failure": false,
+          "display_name": "Split String",
+          "input_string": "$activity.definition_activity_022FWXSJBGMJE11jo7MwvbxzpLtF0Ri2pBY.output.response_body$",
+          "skip_execution": false,
+          "use_regexp": true
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_022FWXSLZF2JE4hmHh6ifUQSbp5qfDOIuN9",
+        "name": "For Each",
+        "title": "For Each",
+        "type": "logic.for_each",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "For Each",
+          "skip_execution": false,
+          "source_array": "$activity.definition_activity_022FWXSKVR9L55eTLkSUVdv43wZSxWmRv3G.output.parts$"
+        },
+        "object_type": "definition_activity",
+        "actions": [
+          {
+            "unique_name": "definition_activity_022FWXSNTTRYV3vssPy94cCWy4ndEGOCK2t",
+            "name": "Condition Block",
+            "title": "Is blank?",
+            "type": "logic.if_else",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Is blank?",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "blocks": [
+              {
+                "unique_name": "definition_activity_022FWXSOPOOL04313bcVpyUBdWyzaT1qQtZ",
+                "name": "Condition Branch",
+                "title": "no blank",
+                "type": "logic.condition_block",
+                "base_type": "activity",
+                "properties": {
+                  "condition": {
+                    "left_operand": "$activity.definition_activity_022FWXSLZF2JE4hmHh6ifUQSbp5qfDOIuN9.input.source_array[@]$",
+                    "operator": "ne",
+                    "right_operand": ""
+                  },
+                  "continue_on_failure": false,
+                  "display_name": "no blank",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_022FWXSQ50VSV7TpC5XNSm2jMhVTS14zjm7",
+                    "name": "Sleep",
+                    "title": "Sleep",
+                    "type": "core.sleep",
+                    "base_type": "activity",
+                    "properties": {
+                      "continue_on_failure": false,
+                      "display_name": "Sleep",
+                      "skip_execution": false,
+                      "sleep_interval": 2
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_022FWXSWUXYVZ3ggwb30U2QHjZ0opn7g6Hm",
+                    "name": "HTTP Request",
+                    "title": "POST SHA256 Hash Files to Cisco Secure Endpoint ",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "accept": "application/json",
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "allow_headers_redirect": false,
+                      "body": "{\n  \"description\":\"misp.voseda.com import at $workflow.definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n.output.start_time$\"\n}",
+                      "content_type": "application/json",
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": true,
+                      "display_name": "POST SHA256 Hash Files to Cisco Secure Endpoint ",
+                      "method": "POST",
+                      "relative_url": "/v1/file_lists/$global.variable_022FXG733N3883xdfWNFRr5TflyFTYVooXs.global.variable_022FXG733N3883xdfWNFRr5TflyFTYVooXs$/files/$activity.definition_activity_022FWXSLZF2JE4hmHh6ifUQSbp5qfDOIuN9.input.source_array[@]$",
+                      "runtime_user": {
+                        "override_target_runtime_user": true,
+                        "runtime_user_id": "definition_runtime_user_022FXIBJNIOQG5GuHCBXi7lPssjKtkfwnuG"
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "override_workflow_target": true,
+                        "target_id": "definition_target_01WSHUIMLF2J45SzJPJSPSp2RPGGDHQvpky"
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_022FWXSYUOF8L1jTqJb2PHzJQNiFcIk7XIz",
+                    "name": "Set Variables",
+                    "title": "SHA256 Hash Files Counter",
+                    "type": "core.set_multiple_variables",
+                    "base_type": "activity",
+                    "properties": {
+                      "continue_on_failure": false,
+                      "display_name": "SHA256 Hash Files Counter",
+                      "skip_execution": false,
+                      "variables_to_update": [
+                        {
+                          "variable_to_update": "$workflow.definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n.local.variable_workflow_022FWXSGW69DO23y5hwKzUmYFrC3YDfSFiw$",
+                          "variable_value_new": "$workflow.definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n.local.variable_workflow_022FWXSGW69DO23y5hwKzUmYFrC3YDfSFiw$ + 1"
+                        }
+                      ]
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "unique_name": "definition_activity_022K8HILTY4ZX0jiFujUQxs3Pr2oJSBbwRY",
+        "name": "Condition Block",
+        "title": "Hash Files Imported?",
+        "type": "logic.if_else",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "Hash Files Imported?",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_022K8HIM4CODN2F1Hm0DsXLm3iNMGWcYXyG",
+            "name": "Condition Branch",
+            "title": "Hash Files Imported",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$workflow.definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n.local.variable_workflow_022FWXSGW69DO23y5hwKzUmYFrC3YDfSFiw$",
+                "operator": "gt",
+                "right_operand": 0
+              },
+              "continue_on_failure": false,
+              "display_name": "Hash Files Imported",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_022FWXT0KRTX02cQEeJdFWT9OyijW7LDgIv",
+                "name": "Webex - Send Message to User",
+                "title": "Webex - Send Message to User",
+                "type": "workflow.atomic_workflow",
+                "base_type": "subworkflow",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Webex - Send Message to User",
+                  "input": {
+                    "variable_workflow_01PP77FMYQNAT1f0Boc3Jsu8zZuOJc7OaZs": "luis.vera@voseda.com",
+                    "variable_workflow_01PP77FMYQOKB6sht7fo6ocrtxThxDnzqIj": "",
+                    "variable_workflow_01PP77FMYQPR36iRvL3LB8HijkENSJBlq5v": "",
+                    "variable_workflow_01PP77FMYQQX64KQBAlf3SoPQsmb3b6YMD4": "Importación de indicadores de compromiso de tipo Hash SHA56 desde misp.voseda.com se completo exitosamente, hash importados: $workflow.definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n.local.variable_workflow_022FWXSGW69DO23y5hwKzUmYFrC3YDfSFiw$",
+                    "variable_workflow_01PP77FMYQS346717GaMvyINtP5frU9HCPI": "$global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI.global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI$"
+                  },
+                  "runtime_user": {
+                    "target_default": true
+                  },
+                  "skip_execution": false,
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC",
+                    "target_type": "web-service.endpoint"
+                  },
+                  "workflow_id": "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1",
+                  "workflow_name": "Webex - Send Message to User"
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_022K8HIMIEA786xHHDTKVsyZoJDHPNoD3hJ",
+            "name": "Condition Branch",
+            "title": "No Hash Files Imported",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$workflow.definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n.local.variable_workflow_022FWXSGW69DO23y5hwKzUmYFrC3YDfSFiw$",
+                "operator": "eq",
+                "right_operand": 0
+              },
+              "continue_on_failure": false,
+              "display_name": "No Hash Files Imported",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_022K8HMEO6W061z2fBNpko2lnekFo0LPJ38",
+                "name": "Webex - Send Message to User",
+                "title": "Webex - Send Message to User",
+                "type": "workflow.atomic_workflow",
+                "base_type": "subworkflow",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Webex - Send Message to User",
+                  "input": {
+                    "variable_workflow_01PP77FMYQNAT1f0Boc3Jsu8zZuOJc7OaZs": "luis.vera@voseda.com",
+                    "variable_workflow_01PP77FMYQOKB6sht7fo6ocrtxThxDnzqIj": "",
+                    "variable_workflow_01PP77FMYQPR36iRvL3LB8HijkENSJBlq5v": "",
+                    "variable_workflow_01PP77FMYQQX64KQBAlf3SoPQsmb3b6YMD4": "No se encontraron indicadores de compromiso de tipo hash en misp.voseda.com para importar en Cisco Secure Endpoint",
+                    "variable_workflow_01PP77FMYQS346717GaMvyINtP5frU9HCPI": "$global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI.global.variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI$"
+                  },
+                  "runtime_user": {
+                    "target_default": true
+                  },
+                  "skip_execution": false,
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC",
+                    "target_type": "web-service.endpoint"
+                  },
+                  "workflow_id": "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1",
+                  "workflow_name": "Webex - Send Message to User"
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "triggers": {
+    "triggerschedule_022K8JO4Q3QLU5hso09LAt2cSeawIXGvLPR": {
+      "workflow_id": "definition_workflow_022FWXSG5VAUG1sfRBvYO5QlOmiis5Y5l1n",
+      "name": "Every Day at 1 PM",
+      "title": "",
+      "lowercase_name": "schedule.every_day_at_1_pm",
+      "type": "schedule",
+      "base_type": "trigger",
+      "ref_id": "schedule_022CMHBDL5RGZ32ur9dyrfpAlybMXgPgqET",
+      "version": "1.0.0",
+      "disabled": false,
+      "unique_name": "triggerschedule_022K8JO4Q3QLU5hso09LAt2cSeawIXGvLPR",
+      "object_type": "triggerschedule"
+    }
+  },
+  "schedules": {
+    "schedule_022CMHBDL5RGZ32ur9dyrfpAlybMXgPgqET": {
+      "unique_name": "schedule_022CMHBDL5RGZ32ur9dyrfpAlybMXgPgqET",
+      "name": "Every Day at 1 PM",
+      "type": "basic.schedule",
+      "base_type": "schedule",
+      "object_type": "schedule",
+      "rule_id": "",
+      "properties": {
+        "calendar": "calendar_recurring_1BMfMWvgiDhSjBQ7hTSyvz3NyVZ",
+        "timezone": "America/Mexico_City",
+        "starttime": "13:00",
+        "interval_hours": 0,
+        "interval_minutes": 0,
+        "number_of_times": 1,
+        "display_name": "Every Day at 1 PM",
+        "description": ""
+      },
+      "version": "1.0.0"
+    }
+  },
+  "targets": {
+    "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC": {
+      "unique_name": "definition_target_01J5LR4RYGF8G17FIct2UtullgqVVJBcRcC",
+      "name": "Webex Teams",
+      "title": "Webex Teams",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "description": "Webex Teams",
+        "disable_certificate_validation": false,
+        "display_name": "Webex Teams",
+        "host": "webexapis.com",
+        "no_runtime_user": true,
+        "port": 443,
+        "protocol": "https"
+      }
+    },
+    "definition_target_01WSHUIMLF2J45SzJPJSPSp2RPGGDHQvpky": {
+      "unique_name": "definition_target_01WSHUIMLF2J45SzJPJSPSp2RPGGDHQvpky",
+      "name": "Target AMP",
+      "title": "Target AMP",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "default_runtime_user_id": "definition_runtime_user_01WSHU476IRC74S4HjanKaQfzmYaMtEW12K",
+        "disable_certificate_validation": false,
+        "display_name": "Target AMP",
+        "host": "api.amp.cisco.com",
+        "ignore_proxy": false,
+        "no_runtime_user": false,
+        "protocol": "https"
+      }
+    },
+    "definition_target_022A8ONUB4PRK3DgMpnWG0FMhHBvN1j04Sx": {
+      "unique_name": "definition_target_022A8ONUB4PRK3DgMpnWG0FMhHBvN1j04Sx",
+      "name": "MISP VOSEDA",
+      "title": "MISP VOSEDA",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": true,
+        "display_name": "MISP VOSEDA",
+        "host": "misp.voseda.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "port": 8080,
+        "protocol": "https"
+      }
+    }
+  },
+  "runtime_users": {
+    "definition_runtime_user_01WSHU476IRC74S4HjanKaQfzmYaMtEW12K": {
+      "unique_name": "definition_runtime_user_01WSHU476IRC74S4HjanKaQfzmYaMtEW12K",
+      "name": "AMP4e W-R Credentials",
+      "title": "AMP4e W-R Credentials",
+      "type": "runtime_user.web-service_basic_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "auth_option": "Basic",
+        "basic_password": "*****",
+        "basic_username": "971d268926852098dc9a",
+        "display_name": "AMP4e W-R Credentials"
+      }
+    },
+    "definition_runtime_user_022FXIBJNIOQG5GuHCBXi7lPssjKtkfwnuG": {
+      "unique_name": "definition_runtime_user_022FXIBJNIOQG5GuHCBXi7lPssjKtkfwnuG",
+      "name": "AMP Voseda MISP",
+      "title": "AMP Voseda MISP",
+      "type": "runtime_user.web-service_basic_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "auth_option": "Basic",
+        "basic_password": "*****",
+        "basic_username": "2c113c1e54dd0c19c40c",
+        "display_name": "AMP Voseda MISP"
+      }
+    }
+  },
+  "variables": {
+    "variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2": {
+      "unique_name": "variable_022A8ZA232RVW1zXbKtQVcNDoCUjt2DMEQ2",
+      "properties": {
+        "value": "RXbTKmgE8DtsEQbMuoXtFJD77wzNtwSsQptmbXDn",
+        "scope": "global",
+        "name": "MISP Voseda",
+        "type": "datatype.string",
+        "is_required": false,
+        "display_on_wizard": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI": {
+      "unique_name": "variable_022B52NJV0UOT26gcH8lQJHhWaaFyVQ38SI",
+      "properties": {
+        "value": "*****",
+        "scope": "global",
+        "name": "NotiBot Voseda Token",
+        "type": "datatype.secure_string",
+        "is_required": false,
+        "display_on_wizard": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_022FXG733N3883xdfWNFRr5TflyFTYVooXs": {
+      "unique_name": "variable_022FXG733N3883xdfWNFRr5TflyFTYVooXs",
+      "properties": {
+        "value": "3d42c828-e927-4291-9a65-9ab141767285",
+        "scope": "global",
+        "name": "Voseda - AMP - Simple Custom Detection List",
+        "type": "datatype.string",
+        "is_required": false,
+        "display_on_wizard": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    }
+  },
+  "atomic_workflows": [
+    "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1"
+  ],
+  "dependent_workflows": [
+    "definition_workflow_01PP77FN50P7N3oE83oYly8DyWnsqloXtJ1"
+  ]
+}
