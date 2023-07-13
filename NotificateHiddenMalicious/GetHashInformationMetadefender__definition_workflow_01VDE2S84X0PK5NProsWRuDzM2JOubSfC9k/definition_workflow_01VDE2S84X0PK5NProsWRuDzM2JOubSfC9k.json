@@ -1,0 +1,388 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01VDE2S84X0PK5NProsWRuDzM2JOubSfC9k",
+    "name": "Get Hash Information Metadefender",
+    "title": "Get Hash Information Metadefender",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "input",
+          "name": "Hash",
+          "type": "datatype.string",
+          "is_required": true,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01VDE49E61RLH3TTkyX2Bdm5sWPQpNYKzLf",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "None",
+          "scope": "output",
+          "name": "Malware Type",
+          "type": "datatype.string",
+          "is_required": false,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01VDKRATPW2VU1j9828vThXkiQKo2ZYaQgp",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.boolean",
+        "properties": {
+          "value": false,
+          "scope": "output",
+          "name": "is malicious?",
+          "type": "datatype.boolean",
+          "is_required": false,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01VDKMA5OPDL57k7UIZte6bHUbeygeXrqaB",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "None",
+          "scope": "output",
+          "name": "Threat Name",
+          "type": "datatype.string",
+          "is_required": false,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01VDKRNY0NPLF2nVMD1FoGAzSCr7GiW8fPx",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "None",
+          "scope": "output",
+          "name": "Malware Family",
+          "type": "datatype.string",
+          "is_required": false,
+          "display_on_wizard": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01VDKRG42NRXF3YUg04BwmuX094uM9mlY8t",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "atomic_group": "Cisco AMP for Endpoints",
+        "is_atomic": true
+      },
+      "delete_workflow_instance": false,
+      "display_name": "Get Hash Information Metadefender",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "no_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01VDE3Q2WPDHP6nBKl57BdOqZgP55eYQPRE",
+        "name": "HTTP Request",
+        "title": "HTTP Request",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "allow_headers_redirect": false,
+          "continue_on_error_status_code": false,
+          "continue_on_failure": true,
+          "custom_headers": [
+            {
+              "name": "apikey",
+              "value": "cd7cc2bc827bb1c917c99040b3567387"
+            }
+          ],
+          "display_name": "HTTP Request",
+          "method": "GET",
+          "relative_url": "/v4/hash/$workflow.definition_workflow_01VDE2S84X0PK5NProsWRuDzM2JOubSfC9k.input.variable_workflow_01VDE49E61RLH3TTkyX2Bdm5sWPQpNYKzLf$",
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "override_workflow_target": true,
+            "target_id": "definition_target_01VAWHTUNMAOY6Thdhhdgv8mgG7KEaqjQDN"
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01VDEDU850TCP4ZmuPNdbEKcTbQSDHmgFRB",
+        "name": "Condition Block",
+        "title": "The request was successful",
+        "type": "logic.if_else",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": true,
+          "display_name": "The request was successful",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_01VDEDU8N0B323ItabkBlkaBXlJomymuOHo",
+            "name": "Condition Branch",
+            "title": "False",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$activity.definition_activity_01VDE3Q2WPDHP6nBKl57BdOqZgP55eYQPRE.output.succeeded$",
+                "operator": "eq",
+                "right_operand": false
+              },
+              "continue_on_failure": false,
+              "display_name": "False",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01VDEEI836JT700VKfm6V7vnGbYPcDLWx36",
+                "name": "Completed",
+                "title": "Completed",
+                "type": "logic.completed",
+                "base_type": "activity",
+                "properties": {
+                  "completion_type": "succeeded",
+                  "continue_on_failure": false,
+                  "display_name": "Completed",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01VDEDU94N64X3k7VLXAlEvyPCV1AZnLSdE",
+            "name": "Condition Branch",
+            "title": "True",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$activity.definition_activity_01VDE3Q2WPDHP6nBKl57BdOqZgP55eYQPRE.output.succeeded$",
+                "operator": "eq",
+                "right_operand": true
+              },
+              "continue_on_failure": false,
+              "display_name": "True",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01VDE4RQINZNR0mL62JMyukgSJZkJtRaI75",
+                "name": "JSONPath Query",
+                "title": "Obtain results",
+                "type": "corejava.jsonpathquery",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "continue_on_failure": false,
+                  "display_name": "Obtain results",
+                  "input_json": "$activity.definition_activity_01VDE3Q2WPDHP6nBKl57BdOqZgP55eYQPRE.output.response_body$",
+                  "jsonpath_queries": [
+                    {
+                      "jsonpath_query": "$.scan_results.scan_all_result_a",
+                      "jsonpath_query_name": "result",
+                      "jsonpath_query_type": "string"
+                    }
+                  ],
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01VDKNWBEMY8T2BksOR7JzmlV3Fk5ZkrG07",
+                "name": "Condition Block",
+                "title": "Was the hash malicious",
+                "type": "logic.if_else",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Was the hash malicious",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "blocks": [
+                  {
+                    "unique_name": "definition_activity_01VDKNWBT4KGJ72N8MDArZr9X3zzeXxZDOq",
+                    "name": "Condition Branch",
+                    "title": "True",
+                    "type": "logic.condition_block",
+                    "base_type": "activity",
+                    "properties": {
+                      "condition": {
+                        "left_operand": "$activity.definition_activity_01VDE4RQINZNR0mL62JMyukgSJZkJtRaI75.output.jsonpath_queries.result$",
+                        "operator": "eq",
+                        "right_operand": "Infected"
+                      },
+                      "continue_on_failure": false,
+                      "display_name": "True",
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity",
+                    "actions": [
+                      {
+                        "unique_name": "definition_activity_01VDKOGVO08MD7J5O8BEQJ9rW8AanB2JByM",
+                        "name": "JSONPath Query",
+                        "title": "Get details",
+                        "type": "corejava.jsonpathquery",
+                        "base_type": "activity",
+                        "properties": {
+                          "action_timeout": 180,
+                          "continue_on_failure": false,
+                          "display_name": "Get details",
+                          "input_json": "$activity.definition_activity_01VDE3Q2WPDHP6nBKl57BdOqZgP55eYQPRE.output.response_body$",
+                          "jsonpath_queries": [
+                            {
+                              "jsonpath_query": "$.malware_type[0]",
+                              "jsonpath_query_name": "malware_type",
+                              "jsonpath_query_type": "string"
+                            },
+                            {
+                              "jsonpath_query": "$.malware_family",
+                              "jsonpath_query_name": "malware_family",
+                              "jsonpath_query_type": "string"
+                            },
+                            {
+                              "jsonpath_query": "$.threat_name",
+                              "jsonpath_query_name": "threat_name",
+                              "jsonpath_query_type": "string"
+                            }
+                          ],
+                          "skip_execution": false
+                        },
+                        "object_type": "definition_activity"
+                      },
+                      {
+                        "unique_name": "definition_activity_01VDKRR424J7V4Oaa0YSodDDuaBLU4Ic04T",
+                        "name": "Set Variables",
+                        "title": "Set Variables",
+                        "type": "core.set_multiple_variables",
+                        "base_type": "activity",
+                        "properties": {
+                          "continue_on_failure": false,
+                          "display_name": "Set Variables",
+                          "skip_execution": false,
+                          "variables_to_update": [
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01VDE2S84X0PK5NProsWRuDzM2JOubSfC9k.output.variable_workflow_01VDKMA5OPDL57k7UIZte6bHUbeygeXrqaB$",
+                              "variable_value_new": true
+                            },
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01VDE2S84X0PK5NProsWRuDzM2JOubSfC9k.output.variable_workflow_01VDKRG42NRXF3YUg04BwmuX094uM9mlY8t$",
+                              "variable_value_new": "$activity.definition_activity_01VDKOGVO08MD7J5O8BEQJ9rW8AanB2JByM.output.jsonpath_queries.malware_family$"
+                            },
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01VDE2S84X0PK5NProsWRuDzM2JOubSfC9k.output.variable_workflow_01VDKRATPW2VU1j9828vThXkiQKo2ZYaQgp$",
+                              "variable_value_new": "$activity.definition_activity_01VDKOGVO08MD7J5O8BEQJ9rW8AanB2JByM.output.jsonpath_queries.malware_type$"
+                            },
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01VDE2S84X0PK5NProsWRuDzM2JOubSfC9k.output.variable_workflow_01VDKRNY0NPLF2nVMD1FoGAzSCr7GiW8fPx$",
+                              "variable_value_new": "$activity.definition_activity_01VDKOGVO08MD7J5O8BEQJ9rW8AanB2JByM.output.jsonpath_queries.threat_name$"
+                            }
+                          ]
+                        },
+                        "object_type": "definition_activity"
+                      },
+                      {
+                        "unique_name": "definition_activity_01VDKSMQBT9XM2O1KDB49EgaawvmeJgOJPr",
+                        "name": "Completed",
+                        "title": "Completed",
+                        "type": "logic.completed",
+                        "base_type": "activity",
+                        "properties": {
+                          "completion_type": "succeeded",
+                          "continue_on_failure": false,
+                          "display_name": "Completed",
+                          "skip_execution": false
+                        },
+                        "object_type": "definition_activity"
+                      }
+                    ]
+                  },
+                  {
+                    "unique_name": "definition_activity_01VDKNWCAUG5769kjN5RijKdiKn0TXnIka0",
+                    "name": "Condition Branch",
+                    "title": "False",
+                    "type": "logic.condition_block",
+                    "base_type": "activity",
+                    "properties": {
+                      "condition": {
+                        "left_operand": "$activity.definition_activity_01VDE4RQINZNR0mL62JMyukgSJZkJtRaI75.output.jsonpath_queries.result$",
+                        "operator": "ne",
+                        "right_operand": "Infected"
+                      },
+                      "continue_on_failure": false,
+                      "display_name": "False",
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity",
+                    "actions": [
+                      {
+                        "unique_name": "definition_activity_01VDKOODA49C26whX4UkHfEXlxX1v7Rh68Y",
+                        "name": "Completed",
+                        "title": "Completed",
+                        "type": "logic.completed",
+                        "base_type": "activity",
+                        "properties": {
+                          "completion_type": "succeeded",
+                          "continue_on_failure": false,
+                          "display_name": "Completed",
+                          "skip_execution": false
+                        },
+                        "object_type": "definition_activity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "targets": {
+    "definition_target_01VAWHTUNMAOY6Thdhhdgv8mgG7KEaqjQDN": {
+      "unique_name": "definition_target_01VAWHTUNMAOY6Thdhhdgv8mgG7KEaqjQDN",
+      "name": "Metadefender Cloud",
+      "title": "Metadefender Cloud",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": false,
+        "display_name": "Metadefender Cloud",
+        "host": "api.metadefender.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "protocol": "https"
+      }
+    }
+  }
+}
